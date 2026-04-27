@@ -1924,66 +1924,6 @@ html[data-ui-size="mobile"] .time-alert {
   }
 }
 
-@media (max-width: 600px) {
-  .key-scroll {
-    margin-top: 0;
-    padding: 8px 0 10px;
-  }
-
-  .key-list {
-    align-items: center;
-  }
-
-  .key-head,
-  .key-item {
-    width: min(100%, 560px);
-    grid-template-columns: 26px 48px minmax(82px, 0.9fr) minmax(100px, 1.1fr) 34px;
-    gap: 8px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .key-head {
-    margin-bottom: 8px;
-    padding: 0 14px;
-  }
-
-  .key-head > div:nth-child(6) {
-    display: none;
-  }
-
-  .key-item {
-    cursor: pointer;
-    grid-template-rows: auto auto;
-    padding: 14px;
-  }
-
-  .key-item > .key-actions {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    display: none;
-    width: 100%;
-    justify-self: stretch;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 4px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(225, 230, 246, 0.72);
-  }
-
-  .key-item.expanded > .key-actions {
-    display: flex;
-  }
-
-  .key-secret .ghost-icon {
-    display: none;
-  }
-
-  .key-item.expanded .key-secret .ghost-icon {
-    display: grid;
-  }
-}
-
 html[data-manager-compact="true"] .key-scroll {
   margin-top: 0;
   padding: 8px 0 10px;
@@ -1996,55 +1936,14 @@ html[data-manager-compact="true"] .key-list {
 html[data-manager-compact="true"] .key-head,
 html[data-manager-compact="true"] .key-item {
   width: min(100%, 560px);
-  grid-template-columns: 26px 48px minmax(82px, 0.9fr) minmax(100px, 1.1fr) 34px;
-  gap: 8px;
   margin-left: auto;
   margin-right: auto;
 }
 
 html[data-manager-compact="true"] .key-head {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   margin-bottom: 8px;
   padding: 0 14px;
-}
-
-html[data-manager-compact="true"] .key-head > div:nth-child(6) {
-  display: none;
-}
-
-html[data-manager-compact="true"] .key-item {
-  cursor: pointer;
-  grid-template-rows: auto auto;
-  padding: 14px;
-}
-
-html[data-manager-compact="true"] .key-item > .key-actions {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  display: none;
-  width: 100%;
-  justify-self: stretch;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 4px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(225, 230, 246, 0.72);
-}
-
-html[data-manager-compact="true"] .key-item.expanded > .key-actions {
-  display: flex;
-}
-
-html[data-manager-compact="true"] .key-secret .ghost-icon {
-  display: none;
-}
-
-html[data-manager-compact="true"] .key-item.expanded .key-secret .ghost-icon {
-  display: grid;
-}
-
-html[data-manager-compact="true"] .key-head {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  width: min(100%, 560px);
   justify-items: center;
 }
 
@@ -2072,6 +1971,8 @@ html[data-manager-compact="true"] .key-item {
   grid-template-columns: 28px 52px minmax(0, 1fr);
   grid-template-rows: auto auto;
   gap: 10px 12px;
+  cursor: pointer;
+  padding: 14px;
 }
 
 html[data-manager-compact="true"] .key-item > input.row-check {
@@ -2108,6 +2009,7 @@ html[data-manager-compact="true"] .key-item.expanded > .key-secret {
 html[data-manager-compact="true"] .key-item > .key-actions {
   grid-column: 3;
   grid-row: 2;
+  display: none;
   width: auto;
   margin-top: 0;
   padding-top: 0;
@@ -2115,6 +2017,18 @@ html[data-manager-compact="true"] .key-item > .key-actions {
   align-self: stretch;
   align-items: center;
   justify-self: end;
+}
+
+html[data-manager-compact="true"] .key-item.expanded > .key-actions {
+  display: flex;
+}
+
+html[data-manager-compact="true"] .key-secret .ghost-icon {
+  display: none;
+}
+
+html[data-manager-compact="true"] .key-item.expanded .key-secret .ghost-icon {
+  display: grid;
 }
 
 html[data-manager-compact="true"] .key-item > .key-digits {

@@ -1,4 +1,4 @@
-const CACHE_NAME = "totp-static-v4";
+const CACHE_NAME = "totp-static-v5";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
