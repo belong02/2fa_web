@@ -1623,13 +1623,32 @@ function setupResponsiveUI() {
   const root = document.documentElement;
   const coarseQuery = window.matchMedia?.("(pointer: coarse)");
   const standaloneQuery = window.matchMedia?.("(display-mode: standalone)");
+  const editableSelector = "input:not([type='checkbox']):not([type='radio']):not([type='file']), textarea, select, [contenteditable='true']";
+  let stableViewportHeight = Math.round(window.innerHeight || root.clientHeight || window.screen?.height || 0);
+  let previousWidth = Math.round(window.innerWidth || root.clientWidth || window.screen?.width || 0);
   let frame = 0;
 
   const apply = () => {
     frame = 0;
-    const viewport = window.visualViewport;
-    const width = Math.round(viewport?.width || window.innerWidth || root.clientWidth || 0);
-    const height = Math.round(viewport?.height || window.innerHeight || root.clientHeight || 0);
+    const width = Math.round(window.innerWidth || root.clientWidth || window.screen?.width || 0);
+    const layoutHeight = Math.round(window.innerHeight || root.clientHeight || stableViewportHeight || 0);
+    const widthChanged = previousWidth && Math.abs(width - previousWidth) > 80;
+
+    if (widthChanged) {
+      stableViewportHeight = layoutHeight;
+    }
+    previousWidth = width;
+
+    if (!stableViewportHeight) stableViewportHeight = layoutHeight;
+
+    const focusedEditable = Boolean(document.activeElement?.matches?.(editableSelector));
+    const keyboardOpen = focusedEditable &&
+      stableViewportHeight > 0 &&
+      stableViewportHeight - layoutHeight > 120;
+
+    if (!keyboardOpen && layoutHeight) stableViewportHeight = layoutHeight;
+
+    const height = keyboardOpen ? stableViewportHeight : layoutHeight;
     const screenWidth = Math.round(window.screen?.width || width);
     const screenHeight = Math.round(window.screen?.height || height);
     const dpr = Number(window.devicePixelRatio || 1).toFixed(2);
@@ -1645,6 +1664,7 @@ function setupResponsiveUI() {
     root.dataset.dpr = dpr;
     root.dataset.standalone = standaloneQuery?.matches ? "true" : "false";
     root.dataset.managerCompact = window.innerWidth < 600 ? "true" : "false";
+    root.dataset.keyboardOpen = keyboardOpen ? "true" : "false";
     root.style.setProperty("--viewport-width", `${width}px`);
     root.style.setProperty("--viewport-height", `${height}px`);
     root.style.setProperty("--screen-width", `${screenWidth}px`);
@@ -1660,8 +1680,8 @@ function setupResponsiveUI() {
   apply();
   window.addEventListener("resize", schedule, { passive: true });
   window.addEventListener("orientationchange", schedule, { passive: true });
-  window.visualViewport?.addEventListener("resize", schedule, { passive: true });
-  window.visualViewport?.addEventListener("scroll", schedule, { passive: true });
+  window.addEventListener("focusin", schedule);
+  window.addEventListener("focusout", () => window.setTimeout(schedule, 180));
   coarseQuery?.addEventListener?.("change", schedule);
   standaloneQuery?.addEventListener?.("change", schedule);
 }
@@ -1706,7 +1726,6 @@ function setupModalScrollbar() {
 
   scroll.addEventListener("scroll", reveal, { passive: true });
   window.addEventListener("resize", schedule, { passive: true });
-  window.visualViewport?.addEventListener("resize", schedule, { passive: true });
 
   if ("ResizeObserver" in window) {
     const observer = new ResizeObserver(schedule);
