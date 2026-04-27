@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://worldtimeapi.org https://timeapi.io; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f7f4ff" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="TOTP" />
+  <title>TOTP</title>
+  <link rel="icon" type="image/svg+xml" href="pwa-icon.svg" />
+  <link rel="apple-touch-icon" href="pwa-icon-192.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="header">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg class="ui-icon" viewBox="0 0 24 24">
+            <path d="M12 3.4 18.15 6v5.25c0 4.05-2.45 7.58-6.15 9.15-3.7-1.57-6.15-5.1-6.15-9.15V6L12 3.4Z"></path>
+            <path d="m9.35 12.15 1.78 1.72 3.72-4"></path>
+          </svg>
+        </div>
+        <h1>TOTP</h1>
+      </div>
+      <button class="icon-btn" id="manageBtn" title="管理"></button>
+    </section>
+
+    <div class="time-alert hidden" id="timeAlert">
+      <span id="timeStatusText"></span>
+      <button id="timeCheckBtn" type="button">重新检测</button>
+    </div>
+
+    <section class="accounts" id="accounts"></section>
+  </main>
+
+  <div class="modal-mask" id="modalMask">
+    <section class="modal">
+      <div class="modal-scroll">
+        <div class="modal-head">
+          <div class="modal-title">
+            <div class="modal-icon" aria-hidden="true">
+              <svg class="ui-icon key-glyph" viewBox="0 0 24 24">
+                <path d="M15.45 4.25a4.45 4.45 0 0 0-4.32 5.52l-6.55 6.55a1.2 1.2 0 0 0-.35.85v1.98c0 .38.31.69.69.69H7a.9.9 0 0 0 .64-.26l.86-.86v-1.76h1.76l1.25-1.25v-1.72h1.72l1.01-1.01a4.45 4.45 0 1 0 1.21-8.73Zm1.2 4.72a1.28 1.28 0 1 1 0-2.56 1.28 1.28 0 0 1 0 2.56Z"></path>
+              </svg>
+            </div>
+            <h2>密钥管理</h2>
+          </div>
+          <button class="icon-btn" id="closeBtn" title="关闭"></button>
+        </div>
+
+        <div class="manager-toolbar">
+          <button class="tool-btn primary" id="toggleEditorBtn" title="添加"></button>
+          <div class="toolbar-spacer"></div>
+          <button class="tool-btn" id="exportAllBtn" title="全部导出"></button>
+          <button class="tool-btn" id="importBtn" title="导入"></button>
+          <button class="tool-btn danger" id="clearBtn" title="清空"></button>
+          <button class="tool-btn primary" id="doneBtn" title="完成"></button>
+        </div>
+
+        <div class="panel editor-panel hidden" id="editorPanel">
+          <div class="grid">
+            <div>
+              <label for="issuer">平台</label>
+              <input id="issuer" placeholder="GitHub" autocomplete="off" />
+            </div>
+            <div>
+              <label for="account">账号</label>
+              <input id="account" placeholder="name@example.com" autocomplete="off" />
+            </div>
+            <div>
+              <label for="secret">密钥</label>
+              <input id="secret" placeholder="Base32 或 otpauth:// 链接" autocomplete="off" spellcheck="false" />
+              <div class="field-hint" id="secretHint">支持 Base32 密钥，也可以直接粘贴 otpauth:// 链接</div>
+            </div>
+            <div>
+              <label for="digits">位数</label>
+              <select id="digits">
+                <option value="6" selected>6</option>
+                <option value="8">8</option>
+              </select>
+            </div>
+          </div>
+          <div class="editor-bottom">
+            <div class="icon-picker">
+              <label for="iconPickerBtn">图标</label>
+              <button class="icon-picker-trigger" id="iconPickerBtn" type="button" title="选择图标"></button>
+            </div>
+            <div class="actions">
+              <button class="primary" id="addBtn">保存</button>
+              <button id="cancelEditBtn">取消</button>
+            </div>
+          </div>
+          <input class="hidden" type="file" id="fileInput" accept="application/json" />
+          <input class="hidden" type="file" id="iconFileInput" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/x-icon,.svg,.ico" />
+        </div>
+
+        <div class="key-table">
+          <div class="key-head">
+            <div><input type="checkbox" id="selectAll" /></div>
+            <div class="head-icon"><svg class="ui-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"></circle><path d="M3.8 12h16.4"></path><path d="M12 3.6c2.2 2.35 3.2 5.1 3.2 8.4s-1 6.05-3.2 8.4"></path><path d="M12 3.6c-2.2 2.35-3.2 5.1-3.2 8.4s1 6.05 3.2 8.4"></path></svg></div>
+            <div class="head-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M12 12.2a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"></path><path d="M4.8 20.2a7.2 7.2 0 0 1 14.4 0"></path></svg></div>
+            <div class="head-icon"><svg class="ui-icon" viewBox="0 0 24 24"><rect x="5.8" y="10.4" width="12.4" height="9" rx="2.1"></rect><path d="M8.4 10.4V7.8a3.6 3.6 0 1 1 7.2 0v2.6"></path><path d="M12 14.1v1.8"></path></svg></div>
+            <div class="head-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M12 4.2 18.7 8v8L12 19.8 5.3 16V8L12 4.2Z"></path><circle cx="12" cy="12" r="2.55"></circle></svg></div>
+            <div></div>
+          </div>
+          <div class="key-scroll-shell">
+            <div id="keyList" class="key-list key-scroll"></div>
+            <div class="modal-scrollbar" id="modalScrollbar" aria-hidden="true">
+              <div class="modal-scrollbar-thumb" id="modalScrollbarThumb"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="manager-foot">
+          <div class="selected-count" id="selectedCount">已选择 0 项</div>
+          <div class="foot-actions">
+            <button class="batch-btn danger" id="deleteSelectedBtn">批量删除</button>
+            <button class="batch-btn" id="exportSelectedBtn">导出所选</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="icon-dialog-mask hidden" id="iconPickerDialog">
+    <section class="icon-dialog" role="dialog" aria-modal="true" aria-label="选择图标">
+      <div class="icon-dialog-head">
+        <div>
+          <div class="icon-dialog-title">选择图标</div>
+          <div class="icon-dialog-subtitle">自动匹配平台，或选择预置/导入图片</div>
+        </div>
+        <button class="icon-btn" id="closeIconPickerBtn" type="button" title="关闭"></button>
+      </div>
+      <div class="icon-option-grid" id="iconPickerOptions"></div>
+      <button class="icon-upload-option" id="uploadIconBtn" type="button"></button>
+    </section>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
