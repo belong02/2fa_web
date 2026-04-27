@@ -1644,6 +1644,7 @@ function setupResponsiveUI() {
     root.dataset.pointer = touch ? "touch" : "fine";
     root.dataset.dpr = dpr;
     root.dataset.standalone = standaloneQuery?.matches ? "true" : "false";
+    root.dataset.managerCompact = window.innerWidth < 600 ? "true" : "false";
     root.style.setProperty("--viewport-width", `${width}px`);
     root.style.setProperty("--viewport-height", `${height}px`);
     root.style.setProperty("--screen-width", `${screenWidth}px`);
