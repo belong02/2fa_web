@@ -1597,6 +1597,18 @@ html[data-ui-size="mobile"] .time-alert {
     min-width: 48px;
     min-height: 48px;
   }
+  html[data-pointer="touch"] .tool-btn {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+  }
+  html[data-pointer="touch"] .modal-head .icon-btn {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    min-height: 50px;
+  }
   .manager-foot {
     align-items: stretch;
     flex-direction: column;
@@ -1721,10 +1733,21 @@ html[data-ui-size="mobile"] .time-alert {
     min-width: 46px;
     min-height: 46px;
   }
+  html[data-pointer="touch"] .modal-head .icon-btn {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    min-height: 46px;
+  }
 
   .manager-toolbar {
     gap: 8px;
     margin-bottom: 16px;
+    flex-wrap: nowrap;
+  }
+
+  .toolbar-spacer {
+    min-width: 0;
   }
 
   .tool-btn {
@@ -1733,6 +1756,33 @@ html[data-ui-size="mobile"] .time-alert {
     min-width: 44px;
     min-height: 44px;
     border-radius: 12px;
+  }
+  html[data-pointer="touch"] .tool-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .manager-foot {
+    gap: 12px;
+    padding-top: 16px;
+  }
+
+  .selected-count {
+    font-size: 15px;
+  }
+
+  .foot-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .batch-btn {
+    min-height: 52px;
+    padding: 0 10px;
+    font-size: 14px;
   }
 
   .editor-panel .actions {
@@ -1786,18 +1836,34 @@ html[data-ui-size="mobile"] .time-alert {
 
 @media (max-width: 380px) {
   .manager-toolbar {
-    flex-wrap: wrap;
+    gap: 7px;
   }
 
   .toolbar-spacer {
-    display: none;
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .tool-btn {
-    flex: 0 0 44px;
-    width: 44px;
-    min-width: 44px;
+    flex: 0 0 40px;
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
     max-width: none;
+  }
+  html[data-pointer="touch"] .tool-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .tool-btn svg,
+  .batch-btn svg {
+    width: 20px;
+    height: 20px;
   }
 
   .key-secret,
