@@ -24,6 +24,7 @@ let accountsStorageReady = false;
 let accountsStorageIssue = "";
 let permissionSessionPassword = "";
 let accountsCryptoKey = null;
+let expandedManagerIndex = null;
 const visibleSecrets = new Set();
 const SUPPORTED_ALGORITHMS = new Set(["SHA-1", "SHA-256", "SHA-512"]);
 const TIME_OFFSET_WARN_MS = 10000;
@@ -1095,6 +1096,10 @@ function setActive(index) {
   });
 }
 
+function isCompactManagerLayout() {
+  return window.innerWidth < 600;
+}
+
 function renderManager() {
   if (accountsStorageIssue) {
     $("keyList").innerHTML = `<div class="empty">${escapeHTML(accountsStorageIssue)}</div>`;
@@ -1103,12 +1108,14 @@ function renderManager() {
   }
 
   const accounts = loadAccounts();
+  if (expandedManagerIndex !== null && expandedManagerIndex >= accounts.length) expandedManagerIndex = null;
   const list = accounts.map((item, index) => {
     if (editingIndex === index) return editRowHTML(item, index);
     const visible = visibleSecrets.has(index);
     const secretValue = visible ? normalizeSecret(item.secret || "") : maskSecret(item.secret || "");
+    const expanded = expandedManagerIndex === index ? " expanded" : "";
     return `
-      <div class="key-item">
+      <div class="key-item${expanded}" data-index="${index}">
         <input type="checkbox" class="row-check" data-index="${index}" />
         ${serviceLogo(item)}
         <div class="key-id">
@@ -1308,6 +1315,7 @@ async function editOne(index) {
   const accounts = loadAccounts();
   const item = accounts[index];
   if (!item) return;
+  expandedManagerIndex = null;
   $("editorPanel").classList.add("hidden");
   editingIndex = index;
   currentOtpSettings = {
@@ -1492,6 +1500,8 @@ async function deleteOne(index) {
   if (editingIndex === index) closeEditor();
   else if (editingIndex !== null && editingIndex > index) editingIndex -= 1;
   if (activeIndex === index) activeIndex = null;
+  if (expandedManagerIndex === index) expandedManagerIndex = null;
+  else if (expandedManagerIndex !== null && expandedManagerIndex > index) expandedManagerIndex -= 1;
   renderManager(); renderCodes();
 }
 
@@ -1765,17 +1775,25 @@ $("keyList").addEventListener("input", (event) => {
 });
 $("keyList").addEventListener("click", async (event) => {
   const button = event.target.closest("[data-action]");
-  if (!button || !$("keyList").contains(button)) return;
+  if (button && $("keyList").contains(button)) {
+    const action = button.dataset.action;
+    const index = Number(button.dataset.index ?? button.closest("[data-edit-index]")?.dataset.editIndex);
 
-  const action = button.dataset.action;
-  const index = Number(button.dataset.index ?? button.closest("[data-edit-index]")?.dataset.editIndex);
+    if (action === "toggle-secret") await toggleSecret(index);
+    else if (action === "edit-one") await editOne(index);
+    else if (action === "delete-one") await deleteOne(index);
+    else if (action === "open-inline-icon-picker") openInlineIconPicker(event);
+    else if (action === "save-inline-edit") await saveInlineEdit(index);
+    else if (action === "cancel-inline-edit") cancelInlineEdit();
+    return;
+  }
 
-  if (action === "toggle-secret") await toggleSecret(index);
-  else if (action === "edit-one") await editOne(index);
-  else if (action === "delete-one") await deleteOne(index);
-  else if (action === "open-inline-icon-picker") openInlineIconPicker(event);
-  else if (action === "save-inline-edit") await saveInlineEdit(index);
-  else if (action === "cancel-inline-edit") cancelInlineEdit();
+  const row = event.target.closest(".key-item[data-index]");
+  if (!row || !$("keyList").contains(row) || !isCompactManagerLayout()) return;
+  if (event.target.closest("input, select, textarea, label")) return;
+  const index = Number(row.dataset.index);
+  expandedManagerIndex = expandedManagerIndex === index ? null : index;
+  renderManager();
 });
 $("toggleEditorBtn").onclick = () => {
   if ($("editorPanel").classList.contains("hidden") || editingIndex !== null) openEditor();
@@ -1949,6 +1967,7 @@ $("deleteSelectedBtn").onclick = async () => {
   if (!(await saveAccounts(accounts))) return;
   visibleSecrets.clear();
   activeIndex = null;
+  expandedManagerIndex = null;
   closeEditor();
   renderManager(); renderCodes();
 };
@@ -1967,6 +1986,7 @@ $("clearBtn").onclick = async () => {
   if (!(await saveAccounts([]))) return;
   visibleSecrets.clear();
   activeIndex = null;
+  expandedManagerIndex = null;
   closeEditor();
   renderManager(); renderCodes();
 };

@@ -1916,6 +1916,66 @@ html[data-ui-size="mobile"] .time-alert {
   }
 }
 
+@media (max-width: 600px) {
+  .key-scroll {
+    margin-top: 0;
+    padding: 8px 0 10px;
+  }
+
+  .key-list {
+    align-items: center;
+  }
+
+  .key-head,
+  .key-item {
+    width: min(100%, 560px);
+    grid-template-columns: 26px 48px minmax(82px, 0.9fr) minmax(100px, 1.1fr) 34px;
+    gap: 8px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .key-head {
+    margin-bottom: 8px;
+    padding: 0 14px;
+  }
+
+  .key-head > div:nth-child(6) {
+    display: none;
+  }
+
+  .key-item {
+    cursor: pointer;
+    grid-template-rows: auto auto;
+    padding: 14px;
+  }
+
+  .key-item > .key-actions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: none;
+    width: 100%;
+    justify-self: stretch;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(225, 230, 246, 0.72);
+  }
+
+  .key-item.expanded > .key-actions {
+    display: flex;
+  }
+
+  .key-secret .ghost-icon {
+    display: none;
+  }
+
+  .key-item.expanded .key-secret .ghost-icon {
+    display: grid;
+  }
+}
+
 @media (max-width: 380px) {
   .manager-toolbar {
     gap: 7px;
@@ -1949,13 +2009,13 @@ html[data-ui-size="mobile"] .time-alert {
   }
 
   .key-item {
-    grid-template-columns: 24px 42px minmax(72px, 0.85fr) minmax(72px, 1fr) 30px 58px;
+    grid-template-columns: 24px 42px minmax(66px, 0.85fr) minmax(72px, 1fr) 30px;
     gap: 7px;
     padding: 12px;
   }
 
   .key-head {
-    grid-template-columns: 24px 42px minmax(72px, 0.85fr) minmax(72px, 1fr) 30px 58px;
+    grid-template-columns: 24px 42px minmax(66px, 0.85fr) minmax(72px, 1fr) 30px;
     gap: 7px;
     padding: 0 12px;
   }
