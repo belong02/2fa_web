@@ -767,8 +767,42 @@ select {
 .editor-panel {
   position: relative;
   z-index: 6;
+  flex: 0 1 auto;
+  max-height: min(430px, calc(var(--viewport-height) * 0.48));
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
   background: rgba(255, 255, 255, 0.56);
   border-color: rgba(220, 225, 244, 0.72);
+  animation: panelExpand 0.2s ease both;
+}
+
+.editor-panel::-webkit-scrollbar,
+.key-edit-item::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.editor-panel::-webkit-scrollbar-track,
+.key-edit-item::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editor-panel::-webkit-scrollbar-thumb,
+.key-edit-item::-webkit-scrollbar-thumb {
+  min-height: 42px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--scroll-thumb);
+  background-clip: content-box;
+}
+
+.editor-panel::-webkit-scrollbar-thumb:hover,
+.key-edit-item::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover);
+  background-clip: content-box;
 }
 
 .icon-picker {
@@ -1018,7 +1052,14 @@ select {
 .key-edit-item {
   display: block;
   min-height: auto;
+  max-height: min(520px, calc(var(--viewport-height) * 0.56));
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
   padding: 18px;
+  animation: panelExpand 0.2s ease both;
 }
 
 .key-edit-item:hover {
@@ -1506,6 +1547,7 @@ html[data-ui-size="mobile"] .time-alert {
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes modalIn { from { opacity: 0; transform: scale(0.985) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes panelExpand { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 1180px) {
   .grid {
@@ -1733,6 +1775,14 @@ html[data-ui-size="mobile"] .time-alert {
       var(--modal-pad-x);
   }
   .panel { padding: 14px; }
+
+  .editor-panel {
+    max-height: min(380px, calc(var(--viewport-height) * 0.44));
+  }
+
+  .key-edit-item {
+    max-height: min(460px, calc(var(--viewport-height) * 0.5));
+  }
 }
 
 @media (max-width: 560px) {
@@ -1880,6 +1930,14 @@ html[data-ui-size="mobile"] .time-alert {
 
   .icon-picker-trigger {
     width: 100%;
+  }
+
+  .editor-panel {
+    max-height: min(360px, calc(var(--viewport-height) * 0.42));
+  }
+
+  .key-edit-item {
+    max-height: min(430px, calc(var(--viewport-height) * 0.48));
   }
 
   .key-item {
