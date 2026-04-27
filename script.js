@@ -742,6 +742,43 @@ function showConfirmDialog({ title = "确认操作", message, okText = "确定",
   });
 }
 
+function showSecretDialog(account) {
+  const mask = document.createElement("div");
+  mask.className = "secret-dialog-mask";
+  const secret = normalizeSecret(account?.secret || "");
+  mask.innerHTML = `
+    <section class="secret-dialog" role="dialog" aria-modal="true" aria-label="显示密钥">
+      <div class="secret-dialog-head">
+        <div>
+          <div class="secret-dialog-title">${escapeHTML(account?.issuer || "Unknown")}</div>
+          <div class="secret-dialog-subtitle">${escapeHTML(account?.account || "未填写")}</div>
+        </div>
+        <button type="button" class="icon-btn secret-dialog-close" title="关闭">${closeIcon}</button>
+      </div>
+      <div class="secret-dialog-value">${escapeHTML(secret)}</div>
+      <div class="secret-dialog-actions">
+        <button type="button" class="primary secret-dialog-copy">${copyIcon}<span>复制密钥</span></button>
+        <button type="button" class="secret-dialog-cancel">关闭</button>
+      </div>
+    </section>`;
+
+  const close = () => {
+    document.removeEventListener("keydown", onKeydown);
+    mask.remove();
+  };
+  const onKeydown = (event) => {
+    if (event.key === "Escape") close();
+  };
+
+  mask.querySelector(".secret-dialog-close").onclick = close;
+  mask.querySelector(".secret-dialog-cancel").onclick = close;
+  mask.querySelector(".secret-dialog-copy").onclick = () => copyCode(secret);
+  mask.addEventListener("click", (event) => { if (event.target === mask) close(); });
+  document.addEventListener("keydown", onKeydown);
+  document.body.appendChild(mask);
+  mask.querySelector(".secret-dialog-copy")?.focus();
+}
+
 function showPermissionPasswordDialog({ title, message, mode = "verify", allowForgot = false }) {
   return new Promise((resolve) => {
     const setting = mode === "set";
@@ -1453,6 +1490,15 @@ async function saveInlineEdit(index) {
 }
 
 async function toggleSecret(index) {
+  if (isCompactManagerLayout()) {
+    const account = loadAccounts()[index];
+    if (!account) return;
+    const unlocked = await ensureSecretViewUnlocked();
+    if (!unlocked) return;
+    showSecretDialog(account);
+    return;
+  }
+
   if (visibleSecrets.has(index)) {
     visibleSecrets.delete(index);
   } else {
