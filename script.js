@@ -1044,7 +1044,7 @@ function updateCountdownUI() {
     const bar = account.querySelector(".bar-inner");
     if (mini) mini.textContent = remain;
     if (countdown) countdown.textContent = `${remain} 秒`;
-    if (bar) bar.style.width = `${percent}%`;
+    if (bar) bar.style.transform = `scaleX(${percent / 100})`;
   });
 }
 
@@ -1116,7 +1116,7 @@ async function renderCodes(force = false) {
             <div class="code" data-code-index="${index}">${error ? "ERROR" : formatCode(code)}</div>
             <button class="copy" data-action="copy-code" data-copy-index="${index}" data-code="${code}" ${error ? "disabled" : ""}>${copyIcon}</button>
           </div>
-          <div class="bar"><div class="bar-inner" style="width: ${percent}%;"></div></div>
+          <div class="bar"><div class="bar-inner" style="transform: scaleX(${percent / 100});"></div></div>
           <div class="countdown">${remain} 秒</div>
         </div>
       </article>`;
@@ -1668,7 +1668,6 @@ async function detectTimeOffset() {
 function setupResponsiveUI() {
   const root = document.documentElement;
   const coarseQuery = window.matchMedia?.("(pointer: coarse)");
-  const standaloneQuery = window.matchMedia?.("(display-mode: standalone)");
   const editableSelector = "input:not([type='checkbox']):not([type='radio']):not([type='file']), textarea, select, [contenteditable='true']";
   let stableViewportHeight = Math.round(window.innerHeight || root.clientHeight || window.screen?.height || 0);
   let previousWidth = Math.round(window.innerWidth || root.clientWidth || window.screen?.width || 0);
@@ -1695,9 +1694,6 @@ function setupResponsiveUI() {
     if (!keyboardOpen && layoutHeight) stableViewportHeight = layoutHeight;
 
     const height = keyboardOpen ? stableViewportHeight : layoutHeight;
-    const screenWidth = Math.round(window.screen?.width || width);
-    const screenHeight = Math.round(window.screen?.height || height);
-    const dpr = Number(window.devicePixelRatio || 1).toFixed(2);
     const touch = Boolean(coarseQuery?.matches || navigator.maxTouchPoints > 0);
     const size = width <= 480 ? "phone" : width <= 860 ? "mobile" : width <= 1180 ? "tablet" : "desktop";
     const heightSize = height <= 620 ? "short" : height >= 900 ? "tall" : "regular";
@@ -1707,15 +1703,8 @@ function setupResponsiveUI() {
     root.dataset.uiHeight = heightSize;
     root.dataset.orientation = orientation;
     root.dataset.pointer = touch ? "touch" : "fine";
-    root.dataset.dpr = dpr;
-    root.dataset.standalone = standaloneQuery?.matches ? "true" : "false";
     root.dataset.managerCompact = window.innerWidth < 600 ? "true" : "false";
-    root.dataset.keyboardOpen = keyboardOpen ? "true" : "false";
-    root.style.setProperty("--viewport-width", `${width}px`);
     root.style.setProperty("--viewport-height", `${height}px`);
-    root.style.setProperty("--screen-width", `${screenWidth}px`);
-    root.style.setProperty("--screen-height", `${screenHeight}px`);
-    root.style.setProperty("--device-pixel-ratio", dpr);
   };
 
   const schedule = () => {
@@ -1729,60 +1718,6 @@ function setupResponsiveUI() {
   window.addEventListener("focusin", schedule);
   window.addEventListener("focusout", () => window.setTimeout(schedule, 180));
   coarseQuery?.addEventListener?.("change", schedule);
-  standaloneQuery?.addEventListener?.("change", schedule);
-}
-
-function setupModalScrollbar() {
-  const scroll = document.querySelector(".key-scroll");
-  const bar = $("modalScrollbar");
-  const thumb = $("modalScrollbarThumb");
-  if (!scroll || !bar || !thumb) return;
-
-  let frame = 0;
-  let hideTimer = 0;
-
-  const update = () => {
-    frame = 0;
-    const maxScroll = scroll.scrollHeight - scroll.clientHeight;
-    if (maxScroll <= 1) {
-      bar.classList.remove("show");
-      thumb.style.height = "0px";
-      thumb.style.transform = "translateY(0)";
-      return;
-    }
-
-    const trackHeight = bar.clientHeight;
-    const thumbHeight = Math.max(48, Math.round((scroll.clientHeight / scroll.scrollHeight) * trackHeight));
-    const maxThumbTop = Math.max(0, trackHeight - thumbHeight);
-    const thumbTop = Math.round((scroll.scrollTop / maxScroll) * maxThumbTop);
-    thumb.style.height = `${thumbHeight}px`;
-    thumb.style.transform = `translateY(${thumbTop}px)`;
-  };
-
-  const schedule = () => {
-    if (!frame) frame = requestAnimationFrame(update);
-  };
-
-  const reveal = () => {
-    bar.classList.add("show");
-    window.clearTimeout(hideTimer);
-    hideTimer = window.setTimeout(() => bar.classList.remove("show"), 1200);
-    schedule();
-  };
-
-  scroll.addEventListener("scroll", reveal, { passive: true });
-  window.addEventListener("resize", schedule, { passive: true });
-
-  if ("ResizeObserver" in window) {
-    const observer = new ResizeObserver(schedule);
-    observer.observe(scroll);
-  }
-
-  if ("MutationObserver" in window) {
-    const observer = new MutationObserver(schedule);
-    observer.observe(scroll, { childList: true, subtree: true });
-  }
-  schedule();
 }
 
 function setupActionIcons() {
@@ -2109,7 +2044,6 @@ function setupPWA() {
 
 async function initializeApp() {
   setupResponsiveUI();
-  setupModalScrollbar();
   setupPWA();
 
   const ready = await initializeAccountsStorage();

@@ -1,5 +1,4 @@
 :root {
-  --viewport-width: 100vw;
   --viewport-height: 100vh;
   --page-pad-x: clamp(12px, 2.5vw, 24px);
   --page-pad-y: clamp(22px, 4vw, 42px);
@@ -11,22 +10,21 @@
   --bg-1: #fff8fb;
   --bg-2: #f3f6ff;
   --bg-3: #f8f4ff;
-  --card: rgba(255, 255, 255, 0.78);
-  --card-strong: rgba(255, 255, 255, 0.92);
   --text: #172033;
   --muted: #7c879a;
-  --soft: #aeb7c8;
   --border: rgba(212, 219, 235, 0.68);
   --accent: #756cff;
-  --accent-soft: #eceaff;
   --icon-muted: #748198;
   --scroll-thumb: rgba(145, 151, 163, 0.58);
   --scroll-thumb-hover: rgba(125, 132, 146, 0.72);
-  --scroll-track: rgba(148, 154, 168, 0.12);
   --danger: #ff4d5f;
   --success: #6b9d82;
   --shadow: 0 28px 80px rgba(72, 83, 120, 0.14);
   --soft-shadow: 0 14px 36px rgba(72, 83, 120, 0.09);
+  --glass-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(244, 243, 255, 0.84) 58%, rgba(255, 249, 253, 0.88));
+  --glass-elevated: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(246, 245, 255, 0.9) 58%, rgba(255, 250, 253, 0.92));
+  --glass-row: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 247, 255, 0.84));
+  --glass-head: linear-gradient(135deg, rgba(248, 249, 255, 0.86), rgba(240, 239, 255, 0.74));
 }
 
 * { box-sizing: border-box; }
@@ -65,14 +63,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 html::-webkit-scrollbar-button,
-body::-webkit-scrollbar-button,
-.key-scroll::-webkit-scrollbar-button {
-  width: 0;
-  height: 0;
-  display: none;
-}
-
-.key-scroll::-webkit-scrollbar-button:single-button {
+body::-webkit-scrollbar-button {
   width: 0;
   height: 0;
   display: none;
@@ -90,6 +81,7 @@ body {
     linear-gradient(135deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
   display: flex;
   justify-content: center;
+  isolation: isolate;
   padding:
     calc(var(--page-pad-y) + env(safe-area-inset-top, 0px))
     calc(var(--page-pad-x) + env(safe-area-inset-right, 0px))
@@ -101,7 +93,7 @@ body.modal-open {
   overflow: hidden;
 }
 
-.app { width: 100%; max-width: 880px; }
+.app { width: 100%; max-width: 880px; contain: inline-size; }
 
 .header {
   display: flex;
@@ -170,10 +162,22 @@ h2 { margin: 0; font-size: 22px; font-weight: 760; letter-spacing: -0.035em; }
 }
 
 .account, .modal, .panel, .key-item, .empty {
-  background: var(--card);
+  background: var(--glass-surface);
   border: 1px solid rgba(255,255,255,0.74);
-  backdrop-filter: blur(22px);
   box-shadow: var(--soft-shadow);
+}
+
+.account,
+.panel,
+.key-item,
+.empty {
+  contain: layout paint style;
+}
+
+.account,
+.key-item:not(.key-edit-item) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 124px;
 }
 
 .account {
@@ -267,7 +271,14 @@ h2 { margin: 0; font-size: 22px; font-weight: 760; letter-spacing: -0.035em; }
   font-variant-numeric: tabular-nums;
 }
 .bar { height: 5px; background: rgba(117,108,255,0.12); border-radius: 999px; overflow: hidden; margin-top: 18px; }
-.bar-inner { height: 100%; width: 0%; background: linear-gradient(90deg, #756cff, #bca8ff); transition: width 0.2s linear; }
+.bar-inner {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #756cff, #bca8ff);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.2s linear;
+}
 
 .empty {
   border-radius: 28px;
@@ -353,8 +364,8 @@ label { display: block; font-size: 12px; font-weight: 680; margin-bottom: 7px; c
   padding: 20px;
   background:
     radial-gradient(circle at 50% 44%, rgba(117, 108, 255, 0.14), transparent 32%),
-    rgba(242, 245, 255, 0.42);
-  backdrop-filter: blur(12px);
+    rgba(242, 245, 255, 0.58);
+  contain: layout paint style;
 }
 
 .auth-dialog {
@@ -362,7 +373,7 @@ label { display: block; font-size: 12px; font-weight: 680; margin-bottom: 7px; c
   padding: 22px;
   border-radius: 24px;
   color: var(--text);
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--glass-elevated);
   border: 1px solid rgba(222, 228, 246, 0.86);
   box-shadow: 0 24px 70px rgba(83, 92, 130, 0.2);
   animation: modalIn 0.2s ease both;
@@ -402,8 +413,8 @@ label { display: block; font-size: 12px; font-weight: 680; margin-bottom: 7px; c
   padding: 20px;
   background:
     radial-gradient(circle at 50% 44%, rgba(117, 108, 255, 0.14), transparent 32%),
-    rgba(242, 245, 255, 0.42);
-  backdrop-filter: blur(12px);
+    rgba(242, 245, 255, 0.58);
+  contain: layout paint style;
 }
 
 .permission-dialog {
@@ -411,7 +422,7 @@ label { display: block; font-size: 12px; font-weight: 680; margin-bottom: 7px; c
   padding: 22px;
   border-radius: 24px;
   color: var(--text);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--glass-elevated);
   border: 1px solid rgba(222, 228, 246, 0.88);
   box-shadow: 0 24px 70px rgba(83, 92, 130, 0.2);
   animation: modalIn 0.2s ease both;
@@ -480,8 +491,8 @@ label { display: block; font-size: 12px; font-weight: 680; margin-bottom: 7px; c
   align-items: center;
   justify-content: center;
   padding: 18px;
-  background: rgba(242, 245, 255, 0.46);
-  backdrop-filter: blur(12px);
+  background: rgba(242, 245, 255, 0.62);
+  contain: layout paint style;
 }
 
 .secret-dialog {
@@ -489,7 +500,7 @@ label { display: block; font-size: 12px; font-weight: 680; margin-bottom: 7px; c
   max-height: min(560px, calc(var(--viewport-height) - 36px));
   padding: 18px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--glass-elevated);
   border: 1px solid rgba(222, 228, 246, 0.92);
   box-shadow: 0 24px 70px rgba(83, 92, 130, 0.2);
   animation: modalIn 0.2s ease both;
@@ -568,8 +579,8 @@ label { display: block; font-size: 12px; font-weight: 680; margin-bottom: 7px; c
   padding: 20px;
   background:
     radial-gradient(circle at 50% 44%, rgba(255, 77, 95, 0.08), transparent 34%),
-    rgba(242, 245, 255, 0.42);
-  backdrop-filter: blur(12px);
+    rgba(242, 245, 255, 0.58);
+  contain: layout paint style;
 }
 
 .confirm-dialog {
@@ -577,7 +588,7 @@ label { display: block; font-size: 12px; font-weight: 680; margin-bottom: 7px; c
   padding: 22px;
   border-radius: 24px;
   color: var(--text);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--glass-elevated);
   border: 1px solid rgba(222, 228, 246, 0.88);
   box-shadow: 0 24px 70px rgba(83, 92, 130, 0.2);
   animation: modalIn 0.2s ease both;
@@ -679,13 +690,13 @@ select {
   background:
     radial-gradient(circle at 2% 1%, rgba(255, 205, 217, 0.3), transparent 32%),
     radial-gradient(circle at 95% 96%, rgba(128, 126, 255, 0.24), transparent 36%),
-    rgba(246, 248, 255, 0.46);
-  backdrop-filter: blur(14px);
+    rgba(246, 248, 255, 0.8);
   display: none;
   align-items: center;
   justify-content: center;
   padding: var(--modal-mask-pad);
   z-index: 10;
+  contain: layout paint style;
 }
 
 .modal-mask.show { display: flex; }
@@ -697,10 +708,14 @@ select {
   overflow: hidden;
   position: relative;
   border-radius: var(--modal-radius);
-  background: rgba(255, 255, 255, 0.72);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255, 221, 232, 0.16), transparent 30%),
+    radial-gradient(circle at 92% 16%, rgba(153, 157, 255, 0.12), transparent 34%),
+    var(--glass-elevated);
   border: 1px solid rgba(255, 255, 255, 0.86);
   box-shadow: 0 34px 95px rgba(105, 113, 150, 0.2);
   animation: modalIn 0.24s ease both;
+  contain: layout paint style;
 }
 
 .modal-scroll {
@@ -729,6 +744,7 @@ select {
   flex-direction: column;
   padding-right: 10px;
   margin-right: -10px;
+  contain: layout paint style;
 }
 
 .manager-content-container::-webkit-scrollbar,
@@ -755,43 +771,6 @@ select {
 .key-body-container::-webkit-scrollbar-thumb:hover {
   background: var(--scroll-thumb-hover);
   background-clip: content-box;
-}
-
-.key-scroll::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
-}
-
-.modal-scrollbar {
-  display: none;
-  position: absolute;
-  top: 6px;
-  right: 2px;
-  bottom: 6px;
-  width: 7px;
-  border-radius: 999px;
-  background: transparent;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.18s ease;
-}
-
-.key-scroll-shell:hover .modal-scrollbar,
-.key-scroll:focus-within + .modal-scrollbar,
-.modal-scrollbar.show {
-  opacity: 1;
-}
-
-.modal-scrollbar-thumb {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 7px;
-  min-height: 48px;
-  border-radius: 9999px;
-  background: var(--scroll-thumb);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.24);
 }
 
 .modal-head {
@@ -1016,8 +995,8 @@ select {
   padding: 20px;
   background:
     radial-gradient(circle at 50% 42%, rgba(117, 108, 255, 0.14), transparent 32%),
-    rgba(242, 245, 255, 0.42);
-  backdrop-filter: blur(12px);
+    rgba(242, 245, 255, 0.58);
+  contain: layout paint style;
 }
 
 .icon-dialog {
@@ -1026,7 +1005,7 @@ select {
   overflow: auto;
   padding: 18px;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--glass-elevated);
   border: 1px solid rgba(222, 228, 246, 0.9);
   box-shadow: 0 24px 70px rgba(83, 92, 130, 0.2);
   animation: modalIn 0.2s ease both;
@@ -1068,6 +1047,7 @@ select {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  contain: layout paint style;
 }
 
 .key-table {
@@ -1100,11 +1080,7 @@ select {
   scrollbar-color: var(--scroll-thumb) transparent;
   padding-right: 10px;
   margin-right: -10px;
-}
-
-.key-scroll-shell {
-  position: relative;
-  min-height: 0;
+  contain: layout paint style;
 }
 
 .key-scroll {
@@ -1130,7 +1106,7 @@ select {
   margin-right: 14px;
   padding: 0 26px;
   color: #76839a;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--glass-head);
   border: 1px solid rgba(220, 225, 244, 0.82);
   border-radius: 12px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
@@ -1157,7 +1133,7 @@ select {
   min-height: 98px;
   border-radius: 13px;
   padding: 18px 26px;
-  background: rgba(255, 255, 255, 0.64);
+  background: var(--glass-row);
   border: 1px solid rgba(221, 226, 245, 0.92);
   box-shadow: 0 12px 34px rgba(104, 113, 150, 0.08);
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
@@ -1388,13 +1364,6 @@ select {
 .ms-grid i:nth-child(2) { background: #7fba00; }
 .ms-grid i:nth-child(3) { background: #00a4ef; }
 .ms-grid i:nth-child(4) { background: #ffb900; }
-
-.service-logo.custom {
-  background: linear-gradient(135deg, rgba(241, 238, 255, 0.95), rgba(248, 247, 255, 0.82));
-}
-
-.secret-wrap { display: grid; grid-template-columns: 1fr 38px; gap: 6px; }
-.secret-mask { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #657087; }
 
 svg {
   width: 18px;
@@ -1740,9 +1709,6 @@ html[data-ui-size="mobile"] .time-alert {
     padding: 0 16px;
   }
   .key-head > div {
-    justify-self: center;
-  }
-  .key-head > div:nth-child(3) {
     justify-self: center;
   }
   .key-head > div:nth-child(5),
